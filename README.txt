@@ -6,7 +6,7 @@ git get -u github.com/indoles/gopick
 
 bash example:
 
-mycd() {
+function mycd() {
   local d=$($GOPATH/bin/gopick)
 	if [[ $? ]]; then
 		 cd $d

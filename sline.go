@@ -59,6 +59,9 @@ func (l *SList) SelectPrevious() {
 }
 
 func (l *SList) CurrentSelection() string {
+	if l.Selected >= len(l.SelectableItems) {
+		return ""
+	}
 	return l.SelectableItems[l.Selected]
 }
 

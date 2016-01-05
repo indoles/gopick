@@ -47,18 +47,16 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		path = path + "/" + content.CurrentSelection()
-		if isDir(path) {
+		sel := content.CurrentSelection()
+		path = path + "/" + sel
+		if !isDir(path) || len(sel) == 0 {
+			output = path
+			ui.StopLoop()
+		} else if isDir(path) {
 			content.cd(path)
 			content.ResetFilter()
+			ui.Clear()
 			ui.Render(ui.Body)
-		} else {
-			output, err = os.Getwd()
-			if err != nil {
-				panic(err)
-			}
-			output += "/" + content.CurrentSelection()
-			ui.StopLoop()
 		}
 	})
 	ui.Handle("/sys/kbd/<escape>", func(ui.Event) {
@@ -82,6 +80,14 @@ func main() {
 		ui.StopLoop()
 		ui.Close()
 		os.Exit(-1)
+	})
+	ui.Handle("/sys/kbd/C-k", func(ui.Event) {
+		content.SelectPrevious()
+		ui.Render(ui.Body)
+	})
+	ui.Handle("/sys/kbd/C-j", func(ui.Event) {
+		content.SelectNext()
+		ui.Render(ui.Body)
 	})
 	ui.Handle("/sys/kbd/C-a", func(ui.Event) {
 		content.ResetFilter()
@@ -131,17 +137,24 @@ func main() {
 		}
 		ui.Render(ui.Body)
 	})
+	ui.Handle("/sys/kbd/C-k", func(ui.Event) {
+		content.SelectPrevious()
+		ui.Render(ui.Body)
+	})
+	ui.Handle("/sys/kbd/C-i", func(ui.Event) {
+		content.SelectNext()
+		ui.Render(ui.Body)
+	})
 	ui.Handle("/sys/kbd/,", func(ui.Event) {
 		content.CdUp()
 		content.ResetFilter()
 		ui.Render(ui.Body)
 	})
 	ui.Handle("/sys/kbd", func(e ui.Event) {
-		output += " " + e.Path
 		if e.Path == "/sys/kbd//" {
 			content.cd("/")
+			ui.Clear()
 			content.ResetFilter()
-
 		} else {
 			if !searching {
 				searching = true
